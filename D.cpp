@@ -11,7 +11,7 @@ int main() {
 
   queue<int> intelligenceQueue;
   int minIntelligence = INT_MAX;
-  int currentMin = INT_MAX;
+
   while (M--) {
     string command;
     cin >> command;
@@ -21,21 +21,17 @@ int main() {
       cin >> n;
       intelligenceQueue.push(n);
       cout << "ok" << endl;
-      currentMin = min(currentMin, n);
+      minIntelligence = min(minIntelligence, n);
     } else if (command == "dequeue") {
       if (!intelligenceQueue.empty()) {
         cout << intelligenceQueue.front() << endl;
-        if (intelligenceQueue.front() == currentMin) {
+        if (intelligenceQueue.front() == minIntelligence) {
           intelligenceQueue.pop();
-          if (intelligenceQueue.empty()) {
-            currentMin = INT_MAX;
-          } else {
-            currentMin = INT_MAX;
-            queue<int> tempQueue = intelligenceQueue;
-            while (!tempQueue.empty()) {
-              currentMin = min(currentMin, tempQueue.front());
-              tempQueue.pop();
-            }
+          minIntelligence = INT_MAX;
+          queue<int> tempQueue = intelligenceQueue;
+          while (!tempQueue.empty()) {
+            minIntelligence = min(minIntelligence, tempQueue.front());
+            tempQueue.pop();
           }
         } else {
           intelligenceQueue.pop();
@@ -56,10 +52,10 @@ int main() {
         intelligenceQueue.pop();
       }
       cout << "ok" << endl;
-      currentMin = INT_MAX;
+      minIntelligence = INT_MAX;
     } else if (command == "min") {
       if (!intelligenceQueue.empty()) {
-        cout << currentMin << endl;
+        cout << minIntelligence << endl;
       } else {
         cout << "error" << endl;
       }
