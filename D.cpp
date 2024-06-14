@@ -1,87 +1,134 @@
-#include <climits>
-#include <deque>
 #include <iostream>
-#include <string>
+#include <stack>
 
-class MagicHat {
+class SortingHat {
  private:
-  std::deque<int> queue;
-  std::deque<int> minQueue;
+  std::stack<long> inStack;
+  std::stack<long> outStack;
+  std::stack<long> minInStack;
+  std::stack<long> minOutStack;
+
+  void transferToOutStack() {
+    while (!inStack.empty()) {
+      long value = inStack.top();
+      inStack.pop();
+
+      if (minOutStack.empty() || value <= minOutStack.top()) {
+        minOutStack.push(value);
+      } else {
+        minOutStack.push(minOutStack.top());
+      }
+
+      outStack.push(value);
+    }
+    // Clear the minInStack when all elements are transferred to outStack
+    while (!minInStack.empty()) {
+      minInStack.pop();
+    }
+  }
 
  public:
-  std::string enqueue(int n) {
-    queue.push_back(n);
-    while (!minQueue.empty() && minQueue.back() > n) {
-      minQueue.pop_back();
+  void enqueue(long n) {
+    inStack.push(n);
+    // Maintain the minimum stack for inStack
+    if (minInStack.empty() || n <= minInStack.top()) {
+      minInStack.push(n);
+    } else {
+      minInStack.push(minInStack.top());
     }
-    minQueue.push_back(n);
-    return "ok";
+    std::cout << "ok" << std::endl;
   }
 
-  std::string dequeue() {
-    if (queue.empty()) {
-      return "error";
+  void dequeue() {
+    if (outStack.empty()) {
+      transferToOutStack();
     }
-    int removed = queue.front();
-    queue.pop_front();
-    if (removed == minQueue.front()) {
-      minQueue.pop_front();
+
+    if (outStack.empty()) {
+      std::cout << "error" << std::endl;
+    } else {
+      long value = outStack.top();
+      outStack.pop();
+      minOutStack.pop();
+      std::cout << value << std::endl;
     }
-    return std::to_string(removed);
   }
 
-  std::string front() {
-    if (queue.empty()) {
-      return "error";
+  void front() {
+    if (outStack.empty()) {
+      transferToOutStack();
     }
-    return std::to_string(queue.front());
+
+    if (outStack.empty()) {
+      std::cout << "error" << std::endl;
+    } else {
+      std::cout << outStack.top() << std::endl;
+    }
   }
 
-  std::string size() { return std::to_string(queue.size()); }
+  void size() { std::cout << inStack.size() + outStack.size() << std::endl; }
 
-  std::string clear() {
-    queue.clear();
-    minQueue.clear();
-    return "ok";
+  void clear() {
+    while (!inStack.empty()) {
+      inStack.pop();
+    }
+    while (!outStack.empty()) {
+      outStack.pop();
+    }
+    while (!minInStack.empty()) {
+      minInStack.pop();
+    }
+    while (!minOutStack.empty()) {
+      minOutStack.pop();
+    }
+    std::cout << "ok" << std::endl;
   }
 
-  std::string min() {
-    if (minQueue.empty()) {
-      return "error";
+  void min() {
+    if (inStack.empty() && outStack.empty()) {
+      std::cout << "error" << std::endl;
+    } else {
+      long minValue = 1000000001;  // Use 1000000001 as an initial large value
+                                   // for comparison
+
+      if (!minInStack.empty()) {
+        minValue = std::min(minValue, minInStack.top());
+      }
+
+      if (!minOutStack.empty()) {
+        minValue = std::min(minValue, minOutStack.top());
+      }
+
+      std::cout << minValue << std::endl;
     }
-    return std::to_string(minQueue.front());
   }
 };
 
 int main() {
   int M;
   std::cin >> M;
-  std::cin.ignore();
 
-  MagicHat hat;
+  SortingHat hat;
+
   std::string command;
-  std::deque<std::string> results;
+  long n;
 
   for (int i = 0; i < M; ++i) {
-    std::getline(std::cin, command);
-    if (command.substr(0, 7) == "enqueue") {
-      int n = std::stoi(command.substr(8));
-      results.push_back(hat.enqueue(n));
+    std::cin >> command;
+    if (command == "enqueue") {
+      std::cin >> n;
+      hat.enqueue(n);
     } else if (command == "dequeue") {
-      results.push_back(hat.dequeue());
+      hat.dequeue();
     } else if (command == "front") {
-      results.push_back(hat.front());
+      hat.front();
     } else if (command == "size") {
-      results.push_back(hat.size());
+      hat.size();
     } else if (command == "clear") {
-      results.push_back(hat.clear());
+      hat.clear();
     } else if (command == "min") {
-      results.push_back(hat.min());
+      hat.min();
     }
-  }
-
-  for (const auto& result : results) {
-    std::cout << result << std::endl;
   }
 
   return 0;
